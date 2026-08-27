@@ -10,6 +10,9 @@ For every config entry of the core `yeelight` integration, this platform:
    light strips) and is skipped -- no switch is created for it.
 3. For every bulb that *does* report support (mainly "ceiling" models
    with a built-in nightlight), a switch entity is created that:
+   - attaches to the SAME device as the light entity, so it shows up in
+     the "Controls" section of that device's page (no separate device,
+     no separate entry in the entity list),
    - turns moonlight mode on/off via `set_power_mode`,
    - polls the bulb periodically to reflect the mode actually set on the
      device (e.g. if it was changed from the Yeelight app or voice).
@@ -73,22 +76,29 @@ async def async_setup_entry(
             continue
 
         light_entity_id = None
-        device_identifiers: set[tuple[str, str]] | None = None
+        light_reg_entry = None
+        device = None
         for reg_entry in er.async_entries_for_config_entry(
             ent_reg, yee_entry.entry_id
         ):
             if reg_entry.domain == "light":
                 light_entity_id = reg_entry.entity_id
+                light_reg_entry = reg_entry
                 if reg_entry.device_id:
                     device = dev_reg.async_get(reg_entry.device_id)
-                    if device:
-                        # Reuse the light's own identifiers so our switch
-                        # attaches to the SAME device instead of creating
-                        # a new one.
-                        device_identifiers = device.identifiers
                 break
 
-        name = yee_entry.title or host
+        name = _resolve_name(hass, yee_entry, light_entity_id, light_reg_entry, host)
+
+        device_identifiers = None
+        if device is not None:
+            device_identifiers = device.identifiers
+            # Safety net: if the device genuinely has no name at all (rare,
+            # but happens with some setup paths), give it the same real
+            # name we just resolved so it doesn't show as "Unnamed device".
+            if not device.name and not device.name_by_user:
+                dev_reg.async_update_device(device.id, name=name)
+                _LOGGER.debug("Named previously unnamed device %s -> %s", device.id, name)
 
         supported = await hass.async_add_executor_job(
             _device_supports_night_mode, host
@@ -115,6 +125,41 @@ async def async_setup_entry(
             "were found. This mode is typically only available on "
             "'ceiling' models with a built-in nightlight."
         )
+
+
+def _resolve_name(
+    hass: HomeAssistant,
+    yee_entry: ConfigEntry,
+    light_entity_id: str | None,
+    light_reg_entry,
+    host: str,
+) -> str:
+    """Best-effort *real* name for a bulb, in priority order:
+
+    1. The light's current friendly_name (state machine) -- this is what
+       the user actually sees for the light everywhere in the UI.
+    2. User-renamed entity in the entity registry.
+    3. The entity's original (integration-provided) name.
+    4. The Yeelight config entry title.
+    5. Raw IP as a last resort.
+    """
+    if light_entity_id:
+        state = hass.states.get(light_entity_id)
+        if state is not None:
+            friendly_name = state.attributes.get("friendly_name")
+            if friendly_name:
+                return friendly_name
+
+    if light_reg_entry is not None:
+        if light_reg_entry.name:
+            return light_reg_entry.name
+        if light_reg_entry.original_name:
+            return light_reg_entry.original_name
+
+    if yee_entry.title:
+        return yee_entry.title
+
+    return host
 
 
 def _device_supports_night_mode(host: str) -> bool:
@@ -164,13 +209,14 @@ class YeelightNightModeSwitch(SwitchEntity):
         self._attr_available = True
 
         if device_identifiers:
-            # Attach to the existing Yeelight device instead of creating a
-            # new one -- this makes the switch show up on the same device
-            # page as the light, alongside its other entities.
+            # Attach to the light's existing device -- this is what makes
+            # the switch appear in the "Controls" section of that
+            # device's page instead of as a separate, unlinked entity.
             self._attr_device_info = DeviceInfo(identifiers=device_identifiers)
         else:
-            # Fallback: no matching device found, keep a readable name and
-            # a standalone entity rather than failing to set up.
+            # Fallback: no matching device found (e.g. YAML-configured
+            # Yeelight without a device registry entry). Keep a readable
+            # standalone name rather than failing setup.
             self._attr_has_entity_name = False
             self._attr_name = f"{name} Night Mode"
 
