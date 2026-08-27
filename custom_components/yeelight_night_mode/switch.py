@@ -121,7 +121,11 @@ def _device_supports_night_mode(host: str) -> bool:
     if not props:
         return False
 
-    active_mode, nl_br = (props + [None, None])[:2]
+    # get_properties() returns a dict of {property_name: value}. Unsupported
+    # properties are either missing from the dict or come back as an empty
+    # string / None, depending on library version.
+    active_mode = props.get("active_mode")
+    nl_br = props.get("nl_br")
     return bool(active_mode not in (None, "")) or bool(nl_br not in (None, ""))
 
 
@@ -154,7 +158,7 @@ class YeelightNightModeSwitch(SwitchEntity):
         try:
             bulb = Bulb(self._host)
             props = bulb.get_properties(["active_mode"])
-            active_mode = props[0] if props else None
+            active_mode = props.get("active_mode") if props else None
             self._attr_available = True
             # Per the Yeelight LAN API, active_mode == "1" means moonlight.
             self._attr_is_on = active_mode == "1"
