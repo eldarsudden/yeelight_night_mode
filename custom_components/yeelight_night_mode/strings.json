@@ -1,0 +1,13 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Yeelight Night Mode",
+        "description": "This creates a switch for every Yeelight light that supports moonlight/night mode. No manual configuration is needed - just press Submit."
+      }
+    },
+    "abort": {
+      "already_configured": "Already configured. Only a single instance is allowed."
+    }
+  }
+}
