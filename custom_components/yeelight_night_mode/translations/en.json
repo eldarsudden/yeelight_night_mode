@@ -9,5 +9,12 @@
     "abort": {
       "already_configured": "Already configured. Only a single instance is allowed."
     }
+  },
+  "entity": {
+    "switch": {
+      "night_mode": {
+        "name": "Night Mode"
+      }
+    }
   }
 }

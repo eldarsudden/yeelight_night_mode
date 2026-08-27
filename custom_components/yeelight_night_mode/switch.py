@@ -22,7 +22,9 @@ from datetime import timedelta
 from homeassistant.components.switch import SwitchEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import device_registry as dr
 from homeassistant.helpers import entity_registry as er
+from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from .const import CONF_HOST, DOMAIN, SCAN_INTERVAL_SECONDS
@@ -59,6 +61,7 @@ async def async_setup_entry(
         return
 
     ent_reg = er.async_get(hass)
+    dev_reg = dr.async_get(hass)
     entities: list[YeelightNightModeSwitch] = []
 
     for yee_entry in yeelight_entries:
@@ -70,11 +73,19 @@ async def async_setup_entry(
             continue
 
         light_entity_id = None
+        device_identifiers: set[tuple[str, str]] | None = None
         for reg_entry in er.async_entries_for_config_entry(
             ent_reg, yee_entry.entry_id
         ):
             if reg_entry.domain == "light":
                 light_entity_id = reg_entry.entity_id
+                if reg_entry.device_id:
+                    device = dev_reg.async_get(reg_entry.device_id)
+                    if device:
+                        # Reuse the light's own identifiers so our switch
+                        # attaches to the SAME device instead of creating
+                        # a new one.
+                        device_identifiers = device.identifiers
                 break
 
         name = yee_entry.title or host
@@ -92,7 +103,9 @@ async def async_setup_entry(
             )
             continue
 
-        entities.append(YeelightNightModeSwitch(host, name, light_entity_id))
+        entities.append(
+            YeelightNightModeSwitch(host, name, light_entity_id, device_identifiers)
+        )
 
     if entities:
         async_add_entities(entities, True)
@@ -134,15 +147,32 @@ class YeelightNightModeSwitch(SwitchEntity):
 
     _attr_icon = "mdi:weather-night"
     _attr_should_poll = True
-    _attr_has_entity_name = False
+    _attr_has_entity_name = True
+    _attr_translation_key = "night_mode"
 
-    def __init__(self, host: str, name: str, light_entity_id: str | None) -> None:
+    def __init__(
+        self,
+        host: str,
+        name: str,
+        light_entity_id: str | None,
+        device_identifiers: set[tuple[str, str]] | None,
+    ) -> None:
         self._host = host
-        self._attr_name = f"{name} Night Mode"
-        self._attr_unique_id = f"{DOMAIN}_{host}_night_mode"
         self._light_entity_id = light_entity_id
+        self._attr_unique_id = f"{DOMAIN}_{host}_night_mode"
         self._attr_is_on = False
         self._attr_available = True
+
+        if device_identifiers:
+            # Attach to the existing Yeelight device instead of creating a
+            # new one -- this makes the switch show up on the same device
+            # page as the light, alongside its other entities.
+            self._attr_device_info = DeviceInfo(identifiers=device_identifiers)
+        else:
+            # Fallback: no matching device found, keep a readable name and
+            # a standalone entity rather than failing to set up.
+            self._attr_has_entity_name = False
+            self._attr_name = f"{name} Night Mode"
 
     @property
     def extra_state_attributes(self) -> dict:

@@ -9,5 +9,12 @@
     "abort": {
       "already_configured": "Уже настроено. Разрешён только один экземпляр."
     }
+  },
+  "entity": {
+    "switch": {
+      "night_mode": {
+        "name": "Ночной режим"
+      }
+    }
   }
 }
