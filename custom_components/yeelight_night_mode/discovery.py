@@ -14,7 +14,6 @@ from .const import (
     CONF_ENTITY_NAME_MODE,
     CONF_HOST,
     ENTITY_NAME_MODE_CUSTOM,
-    ENTITY_NAME_MODE_LIGHT,
     ENTITY_NAME_MODE_NIGHT_SENSOR,
 )
 
@@ -125,8 +124,6 @@ def _resolve_entity_id_object(
     The visible entity name is always "Nightlight Mode"; this value controls
     only the entity ID/object ID.
     """
-    if mode == ENTITY_NAME_MODE_LIGHT:
-        return _object_id(light_entity_id) or _object_id(night_sensor_entity_id) or fallback_name
     if mode == ENTITY_NAME_MODE_CUSTOM:
         return custom_name.replace(
             "<binary_sensor_id>", _object_id(night_sensor_entity_id) or ""

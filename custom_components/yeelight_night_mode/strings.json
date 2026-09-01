@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Yeelight Night Mode",
-        "description": "This creates an entity for every Yeelight light that supports moonlight/night mode. Choose which kind of entity to create - you can change this later in the integration's Options. Choose how the entity ID (object ID) of each new entity should be generated. The visible entity name is always \"Nightlight Mode\". For the ID sources, the part after the dot is used. Custom IDs support <binary_sensor_id> and <light_entity_id> placeholders.",
+        "description": "This creates an entity for every Yeelight light that supports moonlight/night mode. Choose which kind of entity to create - you can change this later in the integration's Options. The selected Entity ID naming setting determines the entity ID (object ID) of each new entity. The visible entity name is always \"Nightlight Mode\". For the ID sources, the part after the dot is used. Custom IDs support <binary_sensor_id> and <light_entity_id> placeholders.",
         "data": {
           "entity_type": "Entity type",
           "entity_name_mode": "Entity ID naming",
@@ -22,7 +22,7 @@
     "step": {
       "init": {
         "title": "Yeelight Night Mode",
-        "description": "Choose whether the night-mode entity for each bulb should be a switch or a light. Changing this reloads the integration and recreates the entities. Choose how the entity ID (object ID) of each new entity should be generated. The visible entity name is always \"Nightlight Mode\". For the ID sources, the part after the dot is used. Custom IDs support <binary_sensor_id> and <light_entity_id> placeholders.",
+        "description": "Choose whether the night-mode entity for each bulb should be a switch or a light. Changing this reloads the integration and recreates the entities. The selected Entity ID naming setting determines the entity ID (object ID) of each new entity. The visible entity name is always \"Nightlight Mode\". For the ID sources, the part after the dot is used. Custom IDs support <binary_sensor_id> and <light_entity_id> placeholders.",
         "data": {
           "entity_type": "Entity type",
           "entity_name_mode": "Entity ID naming",

@@ -19,7 +19,7 @@ from .const import (
     ENTITY_TYPES,
 )
 
-CUSTOM_ENTITY_NAME_EXAMPLE = "nightlight_<binary_sensor_id>"
+CUSTOM_ENTITY_NAME_EXAMPLE = "<light_entity_id>_nightlight_mode"
 
 def _schema(entity_type: str, name_mode: str, custom_name: str) -> vol.Schema:
     return vol.Schema({
