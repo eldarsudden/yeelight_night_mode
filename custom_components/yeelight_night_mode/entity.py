@@ -60,6 +60,7 @@ class YeelightNightModeEntityMixin:
         self._attr_has_entity_name = False
         self._attr_name = "Nightlight Mode"
         self._attr_suggested_object_id = entity_id_object
+        self._requested_object_id = entity_id_object
 
         # NOTE: we deliberately do NOT set `device_info` / `_attr_device_info`
         # here. In current Home Assistant, a device belongs to exactly one
@@ -93,6 +94,26 @@ class YeelightNightModeEntityMixin:
         """Attach to the existing device, then seed state and subscribe."""
         await super().async_added_to_hass()
 
+        # Enforce the configured Entity ID naming after registration.
+        # LightEntity can otherwise retain the default object ID generated
+        # from its display name (for example light.night_mode).
+        registry = er.async_get(self.hass)
+        if self.registry_entry is not None:
+            domain = self.entity_id.split(".", 1)[0]
+            requested_entity_id = f"{domain}.{self._requested_object_id}"
+            if self.entity_id != requested_entity_id:
+                try:
+                    registry.async_update_entity(
+                        self.entity_id, new_entity_id=requested_entity_id
+                    )
+                except ValueError as err:
+                    _LOGGER.warning(
+                        "Could not set requested entity ID '%s' for '%s': %s",
+                        requested_entity_id,
+                        self.entity_id,
+                        err,
+                    )
+
         if self._target_device_id:
             # `device_info` can't cross config entries anymore (see the
             # note in `_init_night_mode`), so we attach to the light's/
@@ -104,7 +125,7 @@ class YeelightNightModeEntityMixin:
             # governs device *creation*.
             registry_entry = self.registry_entry
             if registry_entry is not None and registry_entry.device_id != self._target_device_id:
-                er.async_get(self.hass).async_update_entity(
+                registry.async_update_entity(
                     self.entity_id, device_id=self._target_device_id
                 )
 
