@@ -44,7 +44,6 @@
     "entity_name_mode": {
       "options": {
         "night_sensor": "Night sensor entity ID",
-        "light": "Light entity ID",
         "custom": "Custom"
       }
     }

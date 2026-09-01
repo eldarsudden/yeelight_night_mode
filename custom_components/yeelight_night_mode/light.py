@@ -74,3 +74,7 @@ class YeelightNightModeLight(YeelightNightModeEntityMixin, LightEntity):
         self._init_night_mode(
             host, name, entity_id_object, light_entity_id, night_sensor_entity_id, target_device_id
         )
+        # Explicitly provide the requested entity ID before the platform adds
+        # the entity. Home Assistant uses this as the integration's suggested
+        # entity ID, and it works consistently for both domains.
+        self.entity_id = f"light.{entity_id_object}"
