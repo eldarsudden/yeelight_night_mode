@@ -19,6 +19,8 @@ from .const import (
     ENTITY_TYPES,
 )
 
+CUSTOM_ENTITY_NAME_EXAMPLE = "nightlight_<binary_sensor_id>"
+
 def _schema(entity_type: str, name_mode: str, custom_name: str) -> vol.Schema:
     return vol.Schema({
         vol.Required(CONF_ENTITY_TYPE, default=entity_type): selector.SelectSelector(
@@ -33,7 +35,10 @@ def _schema(entity_type: str, name_mode: str, custom_name: str) -> vol.Schema:
                 mode=selector.SelectSelectorMode.LIST,
             )
         ),
-        vol.Optional(CONF_CUSTOM_ENTITY_NAME, default=custom_name): selector.TextSelector(
+        vol.Optional(
+            CONF_CUSTOM_ENTITY_NAME,
+            default=custom_name or CUSTOM_ENTITY_NAME_EXAMPLE,
+        ): selector.TextSelector(
             selector.TextSelectorConfig()
         ),
     })
@@ -80,6 +85,10 @@ class YeelightNightModeOptionsFlow(config_entries.OptionsFlow):
             CONF_ENTITY_NAME_MODE,
             self.config_entry.data.get(CONF_ENTITY_NAME_MODE, ENTITY_NAME_MODE_NIGHT_SENSOR),
         )
+        # "Light entity ID" was available in older versions; keep old configs usable
+        # while removing that choice from the UI.
+        if current_mode == "light":
+            current_mode = ENTITY_NAME_MODE_NIGHT_SENSOR
         current_custom = self.config_entry.options.get(
             CONF_CUSTOM_ENTITY_NAME, self.config_entry.data.get(CONF_CUSTOM_ENTITY_NAME, "")
         )

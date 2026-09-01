@@ -42,7 +42,7 @@ class YeelightNightModeEntityMixin:
         self,
         host: str,
         name: str,
-        entity_name: str,
+        entity_id_object: str,
         light_entity_id: str | None,
         night_sensor_entity_id: str,
         target_device_id: str | None,
@@ -55,10 +55,11 @@ class YeelightNightModeEntityMixin:
         self._attr_is_on = False
         self._attr_available = False
 
-        # The selected name becomes the actual entity name, so the entity ID
-        # follows it directly (e.g. switch.yeelight_ceila_...).
+        # The entity display name is fixed. The selected naming mode controls
+        # only the object ID / entity ID of the newly created entity.
         self._attr_has_entity_name = False
-        self._attr_name = entity_name
+        self._attr_name = "Nightlight Mode"
+        self._attr_suggested_object_id = entity_id_object
 
         # NOTE: we deliberately do NOT set `device_info` / `_attr_device_info`
         # here. In current Home Assistant, a device belongs to exactly one
@@ -74,7 +75,7 @@ class YeelightNightModeEntityMixin:
             # Yeelight without a device registry entry). Keep a readable
             # standalone name rather than failing setup.
             self._attr_has_entity_name = False
-            self._attr_name = f"{name} Night Mode"
+            self._attr_name = "Nightlight Mode"
 
     @property
     def extra_state_attributes(self) -> dict:

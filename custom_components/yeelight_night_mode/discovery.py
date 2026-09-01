@@ -24,7 +24,7 @@ _LOGGER = logging.getLogger(__name__)
 class NightModeTarget:
     host: str
     name: str
-    entity_name: str
+    entity_id_object: str
     light_entity_id: str | None
     night_sensor_entity_id: str
     device_id: str | None
@@ -81,11 +81,11 @@ async def async_discover_targets(hass: HomeAssistant, entry: ConfigEntry) -> lis
             if device is not None and not device.name and not device.name_by_user:
                 dev_reg.async_update_device(device.id, name=name)
 
-        entity_name = _resolve_entity_name(
+        entity_id_object = _resolve_entity_id_object(
             name_mode, custom_name, light_entity_id, night_sensor_entity_id, name
         )
         targets.append(NightModeTarget(
-            host=host, name=name, entity_name=entity_name,
+            host=host, name=name, entity_id_object=entity_id_object,
             light_entity_id=light_entity_id,
             night_sensor_entity_id=night_sensor_entity_id,
             device_id=target_device_id,
@@ -113,17 +113,22 @@ def _object_id(entity_id: str | None) -> str | None:
         return None
     return entity_id.split(".", 1)[1] if "." in entity_id else entity_id
 
-def _resolve_entity_name(
+def _resolve_entity_id_object(
     mode: str,
     custom_name: str,
     light_entity_id: str | None,
     night_sensor_entity_id: str,
     fallback_name: str,
 ) -> str:
+    """Resolve the object_id used for the created entity.
+
+    The visible entity name is always "Nightlight Mode"; this value controls
+    only the entity ID/object ID.
+    """
     if mode == ENTITY_NAME_MODE_LIGHT:
         return _object_id(light_entity_id) or _object_id(night_sensor_entity_id) or fallback_name
     if mode == ENTITY_NAME_MODE_CUSTOM:
         return custom_name.replace(
-            "<binary_sensor_id>", night_sensor_entity_id
-        ).replace("<light_entity_id>", light_entity_id or "")
+            "<binary_sensor_id>", _object_id(night_sensor_entity_id) or ""
+        ).replace("<light_entity_id>", _object_id(light_entity_id) or "")
     return _object_id(night_sensor_entity_id) or fallback_name
