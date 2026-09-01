@@ -1,14 +1,17 @@
-"""Switch platform for Yeelight Night Mode.
+"""Light platform for Yeelight Night Mode.
 
-Used when the `entity_type` option is set to "switch" (the default).
-Discovery and state logic are shared with the `light` platform -- see
-`discovery.py` and `entity.py`.
+Used when the `entity_type` option is set to "light". Exposes the
+moonlight/night mode as a simple on/off light instead of a switch --
+useful if you want it to show up alongside other lights, be grouped in
+a light group/area card, or be voice-controlled as a light ("turn on
+night mode"). Discovery and state logic are shared with the `switch`
+platform -- see `discovery.py` and `entity.py`.
 """
 from __future__ import annotations
 
 import logging
 
-from homeassistant.components.switch import SwitchEntity
+from homeassistant.components.light import ColorMode, LightEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -24,7 +27,7 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Discover Yeelight bulbs and add a night-mode switch for each one
+    """Discover Yeelight bulbs and add a night-mode light for each one
     that supports the mode."""
 
     try:
@@ -39,7 +42,7 @@ async def async_setup_entry(
 
     targets = await async_discover_targets(hass)
     async_add_entities(
-        YeelightNightModeSwitch(
+        YeelightNightModeLight(
             target.host,
             target.name,
             target.light_entity_id,
@@ -50,9 +53,13 @@ async def async_setup_entry(
     )
 
 
-class YeelightNightModeSwitch(YeelightNightModeEntityMixin, SwitchEntity):
+class YeelightNightModeLight(YeelightNightModeEntityMixin, LightEntity):
     """Represents the moonlight/night mode of a single Yeelight bulb as
-    a switch entity."""
+    a simple on/off light entity (no brightness/color control -- it's
+    just a toggle for the mode)."""
+
+    _attr_color_mode = ColorMode.ONOFF
+    _attr_supported_color_modes = {ColorMode.ONOFF}
 
     def __init__(
         self,

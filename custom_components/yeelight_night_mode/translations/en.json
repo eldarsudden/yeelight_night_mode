@@ -3,15 +3,42 @@
     "step": {
       "user": {
         "title": "Yeelight Night Mode",
-        "description": "This creates a switch for every Yeelight light that supports moonlight/night mode. No manual configuration is needed - just press Submit."
+        "description": "This creates an entity for every Yeelight light that supports moonlight/night mode. Choose which kind of entity to create - you can change this later in the integration's Options.",
+        "data": {
+          "entity_type": "Entity type"
+        }
       }
     },
     "abort": {
       "already_configured": "Already configured. Only a single instance is allowed."
     }
   },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Yeelight Night Mode",
+        "description": "Choose whether the night-mode entity for each bulb should be a switch or a light. Changing this reloads the integration and recreates the entities.",
+        "data": {
+          "entity_type": "Entity type"
+        }
+      }
+    }
+  },
+  "selector": {
+    "entity_type": {
+      "options": {
+        "switch": "Switch",
+        "light": "Light"
+      }
+    }
+  },
   "entity": {
     "switch": {
+      "night_mode": {
+        "name": "Night Mode"
+      }
+    },
+    "light": {
       "night_mode": {
         "name": "Night Mode"
       }
