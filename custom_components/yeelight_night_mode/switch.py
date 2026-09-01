@@ -37,11 +37,12 @@ async def async_setup_entry(
         )
         return
 
-    targets = await async_discover_targets(hass)
+    targets = await async_discover_targets(hass, entry)
     async_add_entities(
         YeelightNightModeSwitch(
             target.host,
             target.name,
+            target.entity_name,
             target.light_entity_id,
             target.night_sensor_entity_id,
             target.device_id,
@@ -58,10 +59,11 @@ class YeelightNightModeSwitch(YeelightNightModeEntityMixin, SwitchEntity):
         self,
         host: str,
         name: str,
+        entity_name: str,
         light_entity_id: str | None,
         night_sensor_entity_id: str,
         target_device_id: str | None,
     ) -> None:
         self._init_night_mode(
-            host, name, light_entity_id, night_sensor_entity_id, target_device_id
+            host, name, entity_name, light_entity_id, night_sensor_entity_id, target_device_id
         )

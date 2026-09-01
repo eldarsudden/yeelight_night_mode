@@ -3,25 +3,35 @@
     "step": {
       "user": {
         "title": "Yeelight Night Mode",
-        "description": "This creates an entity for every Yeelight light that supports moonlight/night mode. Choose which kind of entity to create - you can change this later in the integration's Options.",
+        "description": "This creates an entity for every Yeelight light that supports moonlight/night mode. Choose which kind of entity to create - you can change this later in the integration's Options. Choose the entity name source. For entity IDs, the part after the dot is used. Custom names support <binary_sensor_id> and <light_entity_id> placeholders.",
         "data": {
-          "entity_type": "Entity type"
+          "entity_type": "Entity type",
+          "entity_name_mode": "Entity naming",
+          "custom_entity_name": "Custom entity name"
         }
       }
     },
     "abort": {
       "already_configured": "Already configured. Only a single instance is allowed."
+    },
+    "error": {
+      "custom_entity_name_required": "Enter a custom entity name when Custom is selected."
     }
   },
   "options": {
     "step": {
       "init": {
         "title": "Yeelight Night Mode",
-        "description": "Choose whether the night-mode entity for each bulb should be a switch or a light. Changing this reloads the integration and recreates the entities.",
+        "description": "Choose whether the night-mode entity for each bulb should be a switch or a light. Changing this reloads the integration and recreates the entities. Choose the entity name source. For entity IDs, the part after the dot is used. Custom names support <binary_sensor_id> and <light_entity_id> placeholders.",
         "data": {
-          "entity_type": "Entity type"
+          "entity_type": "Entity type",
+          "entity_name_mode": "Entity naming",
+          "custom_entity_name": "Custom entity name"
         }
       }
+    },
+    "error": {
+      "custom_entity_name_required": "Enter a custom entity name when Custom is selected."
     }
   },
   "selector": {
@@ -29,6 +39,13 @@
       "options": {
         "switch": "Switch",
         "light": "Light"
+      }
+    },
+    "entity_name_mode": {
+      "options": {
+        "night_sensor": "Night sensor entity ID",
+        "light": "Light entity ID",
+        "custom": "Custom"
       }
     }
   },

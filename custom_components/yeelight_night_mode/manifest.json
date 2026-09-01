@@ -1,12 +1,18 @@
 {
   "domain": "yeelight_night_mode",
   "name": "Yeelight Night Mode",
-  "codeowners": ["@eldarsudden"],
+  "codeowners": [
+    "@eldarsudden"
+  ],
   "config_flow": true,
-  "dependencies": ["yeelight"],
+  "dependencies": [
+    "yeelight"
+  ],
   "documentation": "https://github.com/eldarsudden/yeelight_night_mode",
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/eldarsudden/yeelight_night_mode/issues",
-  "requirements": ["yeelight==0.7.14"],
-  "version": "2.1.0"
+  "requirements": [
+    "yeelight==0.7.14"
+  ],
+  "version": "2.2.0"
 }
