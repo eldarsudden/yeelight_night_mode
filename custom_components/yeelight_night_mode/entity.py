@@ -167,28 +167,64 @@ class YeelightNightModeEntityMixin:
         self._attr_available = True
         self._attr_is_on = state.state == "on"
 
-    def turn_on(self, **kwargs) -> None:
-        """Enable moonlight/night mode (blocking, runs in executor)."""
-        from yeelight import Bulb, PowerMode
+    async def async_turn_on(self, **kwargs) -> None:
+        """Enable moonlight/night mode through Home Assistant's Yeelight integration."""
+        if not self._light_entity_id:
+            _LOGGER.error(
+                "Cannot enable night mode for %s: the source Yeelight light "
+                "entity is not available.",
+                self.entity_id,
+            )
+            return
 
         try:
-            bulb = Bulb(self._host)
-            bulb.set_power_mode(PowerMode.MOONLIGHT)
+            # Reuse the already configured Yeelight integration instead of
+            # opening a second direct connection to the bulb. This also keeps
+            # all Yeelight communication in one place and uses its native
+            # set_mode action.
+            await self.hass.services.async_call(
+                "yeelight",
+                "set_mode",
+                {"mode": "moonlight"},
+                target={"entity_id": self._light_entity_id},
+                blocking=True,
+            )
             # Optimistic update -- the authoritative state will arrive
             # shortly via the nightlight sensor's next state change.
             self._attr_is_on = True
-            self.schedule_update_ha_state()
+            self.async_write_ha_state()
         except Exception as err:  # noqa: BLE001
-            _LOGGER.error("Failed to enable night mode on %s: %s", self._host, err)
+            _LOGGER.error(
+                "Failed to enable night mode through Yeelight set_mode "
+                "for %s: %s",
+                self._light_entity_id,
+                err,
+            )
 
-    def turn_off(self, **kwargs) -> None:
-        """Disable moonlight/night mode, back to normal (blocking)."""
-        from yeelight import Bulb, PowerMode
+    async def async_turn_off(self, **kwargs) -> None:
+        """Disable moonlight/night mode through Home Assistant's Yeelight integration."""
+        if not self._light_entity_id:
+            _LOGGER.error(
+                "Cannot disable night mode for %s: the source Yeelight light "
+                "entity is not available.",
+                self.entity_id,
+            )
+            return
 
         try:
-            bulb = Bulb(self._host)
-            bulb.set_power_mode(PowerMode.NORMAL)
+            await self.hass.services.async_call(
+                "yeelight",
+                "set_mode",
+                {"mode": "normal"},
+                target={"entity_id": self._light_entity_id},
+                blocking=True,
+            )
             self._attr_is_on = False
-            self.schedule_update_ha_state()
+            self.async_write_ha_state()
         except Exception as err:  # noqa: BLE001
-            _LOGGER.error("Failed to disable night mode on %s: %s", self._host, err)
+            _LOGGER.error(
+                "Failed to disable night mode through Yeelight set_mode "
+                "for %s: %s",
+                self._light_entity_id,
+                err,
+            )
