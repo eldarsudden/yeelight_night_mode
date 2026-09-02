@@ -3,11 +3,13 @@
     "step": {
       "user": {
         "title": "Yeelight Night Mode",
-        "description": "This creates an entity for every Yeelight light that supports moonlight/night mode. Choose which kind of entity to create - you can change this later in the integration's Options. The selected Entity ID naming setting determines the entity ID (object ID) of each new entity. The visible entity name is always \"Nightlight Mode\". For the ID sources, the part after the dot is used. Custom IDs support &lt;binary_sensor_id&gt; and &lt;light_entity_id&gt; placeholders.",
+        "description": "This creates an entity for every Yeelight light that supports moonlight/night mode. Choose which kind of entity to create - you can change this later in the integration's Options. The selected Entity ID naming setting determines the entity ID (object ID) of each new entity. The Entity name setting controls the visible name; choose Custom to enter your own name. For the ID sources, the part after the dot is used. Custom IDs support &lt;binary_sensor_id&gt; and &lt;light_entity_id&gt; placeholders.",
         "data": {
           "entity_type": "Entity type",
           "entity_name_mode": "Entity ID naming",
-          "custom_entity_name": "Custom entity ID"
+          "custom_entity_name": "Custom entity ID",
+          "entity_display_name_mode": "Entity name",
+          "custom_entity_display_name": "Custom entity name"
         }
       }
     },
@@ -22,11 +24,13 @@
     "step": {
       "init": {
         "title": "Yeelight Night Mode",
-        "description": "Choose whether the night-mode entity for each bulb should be a switch or a light. Changing this reloads the integration and recreates the entities. The selected Entity ID naming setting determines the entity ID (object ID) of each new entity. The visible entity name is always \"Nightlight Mode\". For the ID sources, the part after the dot is used. Custom IDs support &lt;binary_sensor_id&gt; and &lt;light_entity_id&gt; placeholders.",
+        "description": "Choose whether the night-mode entity for each bulb should be a switch or a light. Changing this reloads the integration and recreates the entities. The selected Entity ID naming setting determines the entity ID (object ID) of each new entity. The Entity name setting controls the visible name; choose Custom to enter your own name. For the ID sources, the part after the dot is used. Custom IDs support &lt;binary_sensor_id&gt; and &lt;light_entity_id&gt; placeholders.",
         "data": {
           "entity_type": "Entity type",
           "entity_name_mode": "Entity ID naming",
-          "custom_entity_name": "Custom entity ID"
+          "custom_entity_name": "Custom entity ID",
+          "entity_display_name_mode": "Entity name",
+          "custom_entity_display_name": "Custom entity name"
         }
       }
     },
@@ -46,6 +50,12 @@
         "night_sensor": "Night sensor entity ID",
         "custom": "Custom"
       }
+    },
+    "entity_display_name_mode": {
+      "options": {
+        "default": "Nightlight Mode",
+        "custom": "Custom"
+      }
     }
   },
   "entity": {
@@ -59,5 +69,8 @@
         "name": "Nightlight Mode"
       }
     }
+  },
+  "error": {
+    "custom_entity_display_name_required": "Enter a custom entity name when Custom is selected."
   }
 }

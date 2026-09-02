@@ -12,9 +12,13 @@ from homeassistant.helpers import entity_registry as er
 from .const import (
     CONF_CUSTOM_ENTITY_NAME,
     CONF_ENTITY_NAME_MODE,
+    CONF_ENTITY_DISPLAY_NAME_MODE,
+    CONF_CUSTOM_ENTITY_DISPLAY_NAME,
     CONF_HOST,
     ENTITY_NAME_MODE_CUSTOM,
     ENTITY_NAME_MODE_NIGHT_SENSOR,
+    ENTITY_DISPLAY_NAME_MODE_DEFAULT,
+    ENTITY_DISPLAY_NAME_MODE_CUSTOM,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -24,6 +28,7 @@ class NightModeTarget:
     host: str
     name: str
     entity_id_object: str
+    display_name: str
     light_entity_id: str | None
     night_sensor_entity_id: str
     device_id: str | None
@@ -42,6 +47,14 @@ async def async_discover_targets(hass: HomeAssistant, entry: ConfigEntry) -> lis
     )
     custom_name = entry.options.get(
         CONF_CUSTOM_ENTITY_NAME, entry.data.get(CONF_CUSTOM_ENTITY_NAME, "")
+    )
+    display_name_mode = entry.options.get(
+        CONF_ENTITY_DISPLAY_NAME_MODE,
+        entry.data.get(CONF_ENTITY_DISPLAY_NAME_MODE, ENTITY_DISPLAY_NAME_MODE_DEFAULT),
+    )
+    custom_display_name = entry.options.get(
+        CONF_CUSTOM_ENTITY_DISPLAY_NAME,
+        entry.data.get(CONF_CUSTOM_ENTITY_DISPLAY_NAME, ""),
     )
     targets = []
 
@@ -83,8 +96,12 @@ async def async_discover_targets(hass: HomeAssistant, entry: ConfigEntry) -> lis
         entity_id_object = _resolve_entity_id_object(
             name_mode, custom_name, light_entity_id, night_sensor_entity_id, name
         )
+        display_name = _resolve_display_name(
+            display_name_mode, custom_display_name, name
+        )
         targets.append(NightModeTarget(
             host=host, name=name, entity_id_object=entity_id_object,
+            display_name=display_name,
             light_entity_id=light_entity_id,
             night_sensor_entity_id=night_sensor_entity_id,
             device_id=target_device_id,
@@ -119,13 +136,16 @@ def _resolve_entity_id_object(
     night_sensor_entity_id: str,
     fallback_name: str,
 ) -> str:
-    """Resolve the object_id used for the created entity.
-
-    The visible entity name is always "Nightlight Mode"; this value controls
-    only the entity ID/object ID.
-    """
+    """Resolve the object_id used for the created entity."""
     if mode == ENTITY_NAME_MODE_CUSTOM:
         return custom_name.replace(
             "<binary_sensor_id>", _object_id(night_sensor_entity_id) or ""
         ).replace("<light_entity_id>", _object_id(light_entity_id) or "")
     return _object_id(night_sensor_entity_id) or fallback_name
+
+
+def _resolve_display_name(mode: str, custom_name: str, fallback_name: str) -> str:
+    """Resolve the visible Entity name."""
+    if mode == ENTITY_DISPLAY_NAME_MODE_CUSTOM and custom_name.strip():
+        return custom_name.strip()
+    return "Nightlight Mode"

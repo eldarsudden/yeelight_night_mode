@@ -46,6 +46,7 @@ async def async_setup_entry(
             target.host,
             target.name,
             target.entity_id_object,
+            target.display_name,
             target.light_entity_id,
             target.night_sensor_entity_id,
             target.device_id,
@@ -67,10 +68,11 @@ class YeelightNightModeLight(YeelightNightModeEntityMixin, LightEntity):
         host: str,
         name: str,
         entity_id_object: str,
+        display_name: str,
         light_entity_id: str | None,
         night_sensor_entity_id: str,
         target_device_id: str | None,
     ) -> None:
         self._init_night_mode(
-            host, name, entity_id_object, light_entity_id, night_sensor_entity_id, target_device_id
+            host, name, entity_id_object, display_name, light_entity_id, night_sensor_entity_id, target_device_id
         )

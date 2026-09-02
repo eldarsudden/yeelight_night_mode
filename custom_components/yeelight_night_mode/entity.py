@@ -43,6 +43,7 @@ class YeelightNightModeEntityMixin:
         host: str,
         name: str,
         entity_id_object: str,
+        display_name: str,
         light_entity_id: str | None,
         night_sensor_entity_id: str,
         target_device_id: str | None,
@@ -58,7 +59,7 @@ class YeelightNightModeEntityMixin:
         # The entity display name is fixed. The selected naming mode controls
         # only the object ID / entity ID of the newly created entity.
         self._attr_has_entity_name = False
-        self._attr_name = "Nightlight Mode"
+        self._attr_name = display_name
         self._attr_suggested_object_id = entity_id_object
         self._requested_object_id = entity_id_object
 
@@ -76,7 +77,7 @@ class YeelightNightModeEntityMixin:
             # Yeelight without a device registry entry). Keep a readable
             # standalone name rather than failing setup.
             self._attr_has_entity_name = False
-            self._attr_name = "Nightlight Mode"
+            self._attr_name = display_name
 
     @property
     def extra_state_attributes(self) -> dict:
