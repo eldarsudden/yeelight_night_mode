@@ -1,0 +1,14 @@
+{
+  "entity": {
+    "switch": {
+      "night_mode": {
+        "default": "mdi:weather-night"
+      }
+    },
+    "light": {
+      "night_mode": {
+        "default": "mdi:weather-night"
+      }
+    }
+  }
+}
